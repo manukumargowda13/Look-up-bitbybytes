@@ -78,9 +78,14 @@ app.use((req, res) => {
   });
 });
 
+const { refreshCrewCacheIfNeeded } = require('./services/issCrewService');
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`[${new Date().toISOString()}] ✓ Server running on port ${PORT}`);
+  refreshCrewCacheIfNeeded().catch((err) => {
+    console.warn('[ISS Crew] Startup cache warm failed:', err.message);
+  });
   console.log('[ENV] API Keys Status:');
   console.log('  - OPENWEATHER_API_KEY:', process.env.OPENWEATHER_API_KEY ? '✓ Configured' : '✗ Missing');
   console.log('  - N2YO_API_KEY:', process.env.N2YO_API_KEY ? '✓ Configured' : '✗ Missing');
