@@ -13,6 +13,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const visibilityRoutes = require('./routes/visibilityRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const spacexRoutes = require('./routes/spacexRoutes');
+const solarSystemRoutes = require('./routes/solarSystemRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -57,6 +58,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/visibility', visibilityRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/spacex', spacexRoutes);
+app.use('/api/solar', solarSystemRoutes);
 
 // Direct explicit endpoints mapping as requested
 app.get('/api/location/:lat/:lng', visibilityController.getLocationInfo);

@@ -1,23 +1,50 @@
-import React from 'react';
-import { Orbit, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Orbit, ExternalLink } from 'lucide-react';
 
 const SolarSystemViewer = () => {
-  // A simple placeholder or iframe/canvas integration can go here. 
-  // Since we use react-globe.gl mostly for Earth, Solar System might just be a stylized view or list.
+  const navigate = useNavigate();
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#e2e8f0' }}>
-      <Orbit size={32} color="#fcd34d" style={{ marginBottom: 12 }} />
-      <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>Solar System Overview</h3>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', padding: '0 10px' }}>
-        {['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].map(p => (
-          <div key={p} style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: 12, fontSize: '0.85rem' }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      color: '#e2e8f0',
+      textAlign: 'center',
+      gap: 12,
+    }}>
+      <Orbit size={32} color="#fcd34d" style={{ marginBottom: 8 }} />
+      <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Solar System Overview</h3>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', padding: '0 10px' }}>
+        {['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'].map(p => (
+          <div key={p} style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: 8, fontSize: '0.78rem' }}>
             {p}
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 16, fontSize: '0.8rem', color: '#94a3b8' }}>
-        Interactive orbit mode available in full view.
-      </div>
+      <button
+        onClick={() => navigate('/solar-system')}
+        style={{
+          marginTop: 6,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          border: '1px solid rgba(34,211,238,0.45)',
+          background: 'rgba(34,211,238,0.1)',
+          color: '#67e8f9',
+          borderRadius: 8,
+          padding: '9px 13px',
+          cursor: 'pointer',
+          fontFamily: 'Courier New, monospace',
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          fontSize: '0.72rem',
+        }}
+      >
+        Launch Explorer <ExternalLink size={14} />
+      </button>
     </div>
   );
 };
