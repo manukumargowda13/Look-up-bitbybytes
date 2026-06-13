@@ -84,4 +84,5 @@ app.listen(PORT, () => {
   console.log('  - N2YO_API_KEY:', process.env.N2YO_API_KEY ? '✓ Configured' : '✗ Missing');
   console.log('  - ASTRONOMY_API_KEY:', process.env.ASTRONOMY_API_KEY ? '✓ Configured' : '✗ Missing');
   console.log('  - NASA_API_KEY:', process.env.NASA_API_KEY ? '✓ Configured' : '✗ Missing');
+  console.log('  - GROQ_API_KEY:', process.env.GROQ_API_KEY ? '✓ Configured' : '✗ Missing');
 });

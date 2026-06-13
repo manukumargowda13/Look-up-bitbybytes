@@ -32,7 +32,7 @@ const getLocationDetails = async (latitude, longitude) => {
 // Get timezone using GeoNames API (requires free account - alternative: use simple offset)
 const getTimezoneForLocation = async (latitude, longitude) => {
   try {
-    const apiKey = process.env.IPGEO_API_KEY;
+    const apiKey = process.env.ASTRONOMY_API_KEY;
     if (!apiKey) {
       const tzOffset = Math.round(longitude / 15);
       const sign = tzOffset >= 0 ? '+' : '';
