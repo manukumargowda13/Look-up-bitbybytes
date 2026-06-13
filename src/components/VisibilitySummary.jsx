@@ -22,7 +22,7 @@ const VisibilitySummary = ({ location, onClose }) => {
         }
 
         const data = await response.json();
-        setSummary(data);
+        setSummary(data.data ?? data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -113,6 +113,40 @@ const VisibilitySummary = ({ location, onClose }) => {
                     {obj}
                   </span>
                 ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ISS Next Pass */}
+          {summary.detailedData?.iss?.nextPass && (
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.05 }}
+              style={{
+                padding: '12px',
+                background: 'rgba(250, 204, 21, 0.05)',
+                border: '1px solid rgba(250, 204, 21, 0.2)',
+                borderRadius: '8px'
+              }}
+            >
+              <div style={{ color: '#fde047', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>
+                NEXT ISS PASS:
+              </div>
+              <div style={{ color: '#f8fafc', fontSize: '1rem', fontWeight: 600 }}>
+                {new Date(summary.detailedData.iss.nextPass.startTime).toLocaleString([], {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit'
+                })}
+              </div>
+              <div style={{ color: '#cbd5e1', fontSize: '0.85rem', marginTop: '4px' }}>
+                Duration: {summary.detailedData.iss.nextPass.duration} min
+              </div>
+              <div style={{ color: '#cbd5e1', fontSize: '0.85rem', marginTop: '2px' }}>
+                Visibility: {summary.detailedData.iss.nextPass.visibility}
               </div>
             </motion.div>
           )}

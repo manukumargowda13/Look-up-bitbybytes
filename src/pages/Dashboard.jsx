@@ -3,6 +3,7 @@ import React from 'react';
 import GlobeView from '../components/GlobeView';
 import SatelliteDirectory from '../components/SatelliteDirectory';
 import SatelliteInfo from '../components/SatelliteInfo';
+import OrbitalPanel from '../components/OrbitalPanel';
 import CosmicConditions from '../components/CosmicConditions';
 import AstronomyCard from '../components/AstronomyCard';
 import AsteroidCard from '../components/AsteroidCard';
@@ -51,6 +52,13 @@ const Dashboard = () => {
         </div>
         <div className="panel-desc">Details about the selected satellite including status, altitude, and agency.</div>
         <SatelliteInfo />
+
+        <div className="panel-header" style={{ marginTop: '18px' }}>
+          <Satellite size={16} />
+          <span>ISS Tracking</span>
+        </div>
+        <div className="panel-desc">Live ISS position and tracking status from the backend service.</div>
+        <OrbitalPanel />
       </div>
 
       {/* Bottom - Space Weather */}

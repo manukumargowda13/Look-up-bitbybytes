@@ -18,11 +18,47 @@ const LAUNCH_SITES = [
   { id: 'JSC', lat: 29.5502, lng: -95.097, name: 'Johnson Space Center', type: 'Research', color: '#10b981', size: 0.06 }
 ];
 
+const interpolateLng = (lng0, lng1, frac) => {
+  let diff = lng1 - lng0;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  let lng = lng0 + diff * frac;
+  if (lng > 180) lng -= 360;
+  if (lng < -180) lng += 360;
+  return lng;
+};
+
+const getISSPositionFromOrbit = (orbitData) => {
+  if (!orbitData?.points?.length) return null;
+
+  const now = Date.now();
+  const points = orbitData.points;
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const t0 = new Date(points[i].time).getTime();
+    const t1 = new Date(points[i + 1].time).getTime();
+    if (now >= t0 && now <= t1) {
+      const frac = (now - t0) / (t1 - t0);
+      return {
+        lat: points[i].lat + (points[i + 1].lat - points[i].lat) * frac,
+        lng: interpolateLng(points[i].lng, points[i + 1].lng, frac)
+      };
+    }
+  }
+
+  if (orbitData.currentPosition) {
+    return { lat: orbitData.currentPosition.lat, lng: orbitData.currentPosition.lng };
+  }
+
+  return { lat: points[0].lat, lng: points[0].lng };
+};
+
 const GlobeView = () => {
   const globeRef = useRef();
   const { selectedSatellite, SATELLITES_DATA, setIntelligenceData } = useContext(SatelliteContext);
   const [dimensions, setDimensions] = useState({ width: 600, height: 600 });
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [issOrbitData, setIssOrbitData] = useState(null);
   const [renderTick, setRenderTick] = useState(0);
   const timeRef = useRef(0);
   const markerRefsRef = useRef({});
@@ -77,6 +113,11 @@ const GlobeView = () => {
 
   // Simulate satellite position based on time and orbital data
   const calculateSatellitePosition = (satKey, timeInSeconds) => {
+    if (satKey === 'ISS' && issOrbitData) {
+      const pos = getISSPositionFromOrbit(issOrbitData);
+      if (pos) return pos;
+    }
+
     const orbital = ORBITAL_DATA[satKey];
     if (!orbital) return { lat: 0, lng: 0 };
 
@@ -116,6 +157,24 @@ const GlobeView = () => {
 
     return points;
   };
+
+  useEffect(() => {
+    const fetchOrbit = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
+        const res = await fetch(`${baseUrl}/api/iss/orbit`);
+        if (!res.ok) throw new Error(`Orbit API ${res.status}`);
+        const data = await res.json();
+        setIssOrbitData(data);
+      } catch (error) {
+        console.error('[GlobeView] Failed to fetch ISS orbit:', error);
+      }
+    };
+
+    fetchOrbit();
+    const orbitInterval = setInterval(fetchOrbit, 180000);
+    return () => clearInterval(orbitInterval);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -272,7 +331,7 @@ const GlobeView = () => {
     };
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [selectedSatellite, selectedLocation]);
+  }, [selectedSatellite, selectedLocation, issOrbitData]);
 
   // Fetch location data from backend when location is clicked
   useEffect(() => {
@@ -289,7 +348,7 @@ const GlobeView = () => {
         const [locationRes, weatherRes, issRes, astronomyRes, satellitesRes] = await Promise.allSettled([
           fetch(`${baseUrl}/api/location?latitude=${latitude}&longitude=${longitude}`),
           fetch(`${baseUrl}/api/weather?latitude=${latitude}&longitude=${longitude}`),
-          fetch(`${baseUrl}/api/iss/passes?latitude=${latitude}&longitude=${longitude}`),
+          fetch(`${baseUrl}/api/iss/visibility?lat=${latitude}&lon=${longitude}`),
           fetch(`${baseUrl}/api/astronomy?latitude=${latitude}&longitude=${longitude}`),
           fetch(`${baseUrl}/api/satellites`)
         ]);
@@ -305,7 +364,8 @@ const GlobeView = () => {
         }
 
         if (issRes.status === 'fulfilled' && issRes.value.ok) {
-          results.iss = await issRes.value.json();
+          const issPayload = await issRes.value.json();
+          results.iss = issPayload;
         }
 
         if (astronomyRes.status === 'fulfilled' && astronomyRes.value.ok) {
@@ -410,6 +470,17 @@ const GlobeView = () => {
   // Generate arcs for orbital paths
   const arcsData = React.useMemo(() => {
     return Object.keys(SATELLITES_DATA).map(satKey => {
+      if (satKey === 'ISS' && issOrbitData?.points?.length) {
+        return {
+          id: satKey,
+          points: issOrbitData.points.map((point) => ({
+            lat: point.lat,
+            lng: point.lng
+          })),
+          color: SATELLITES_DATA[satKey].color
+        };
+      }
+
       const orbital = ORBITAL_DATA[satKey];
       const points = [];
 
@@ -425,11 +496,11 @@ const GlobeView = () => {
 
       return {
         id: satKey,
-        points: points,
+        points,
         color: SATELLITES_DATA[satKey].color
       };
     });
-  }, []);
+  }, [issOrbitData]);
 
   return (
     <div style={{ position: 'relative', width: dimensions.width, height: dimensions.height }}>
