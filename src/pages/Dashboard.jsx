@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import GlobeView from '../components/GlobeView';
 import SatelliteDirectory from '../components/SatelliteDirectory';
 import SatelliteInfo from '../components/SatelliteInfo';
@@ -21,6 +22,7 @@ import '../styles/dashboard.css';
 
 const Dashboard = () => {
   const { intelligenceData } = React.useContext(SatelliteContext);
+  const navigate = useNavigate();
   return (
     <div className="dashboard-container">
       {/* Left Column */}
@@ -120,13 +122,35 @@ const Dashboard = () => {
         <SpaceXTracker />
       </div>
 
-      <div className="moon-panel panel">
+      <div className="moon-panel panel" style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
         <div className="panel-header">
           <Moon size={16} />
           <span>Moon Explorer</span>
         </div>
         <div className="panel-desc">Current lunar phase and visibility.</div>
         <MoonExplorer moonData={intelligenceData?.astronomy} />
+        <button
+          onClick={() => navigate('/lunar-missions')}
+          style={{
+            marginTop: 'auto',
+            width: '100%',
+            padding: '10px',
+            background: 'linear-gradient(135deg, rgba(79,195,247,0.15), rgba(123,97,255,0.15))',
+            border: '1px solid rgba(79,195,247,0.3)',
+            borderRadius: '8px',
+            color: '#4fc3f7',
+            fontSize: '0.78rem',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            fontFamily: 'Courier New, monospace',
+          }}
+          onMouseEnter={e => { e.target.style.background = 'linear-gradient(135deg, rgba(79,195,247,0.25), rgba(123,97,255,0.25))'; e.target.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.target.style.background = 'linear-gradient(135deg, rgba(79,195,247,0.15), rgba(123,97,255,0.15))'; e.target.style.transform = 'translateY(0)'; }}
+        >
+          🌕 Launch Lunar Missions Explorer
+        </button>
       </div>
 
       {/* Row 5 */}
